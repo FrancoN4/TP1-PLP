@@ -41,7 +41,12 @@ testsAlinearDerecha =
   test
     [ alinearDerecha 6 "hola" ~?= "  hola",
       alinearDerecha 10 "incierticalc" ~?= "incierticalc",
-      completar
+      alinearDerecha 0 "incierticalc" ~?= "incierticalc",
+      alinearDerecha 1 "a" ~?=  "a",
+      alinearDerecha 1 "" ~?= " ",
+      alinearDerecha 0 "" ~?= "",
+      alinearDerecha 6 "a b c" ~?= " a b c",
+      alinearDerecha 6 " hola" ~?= "  hola"
     ]
 
 testsActualizarElem :: Test
