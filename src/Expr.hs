@@ -23,10 +23,28 @@ data Expr
   deriving (Show, Eq)
 
 -- recrExpr :: ... anotar el tipo ...
-recrExpr = error "COMPLETAR EJERCICIO 7"
+recrExpr :: (Float -> a) -> (Float -> Float -> a) -> (Expr -> a -> Expr -> a -> a)-> (Expr -> a -> Expr -> a -> a)-> (Expr -> a -> Expr -> a -> a)-> (Expr -> a -> Expr -> a -> a) -> Expr -> a
+recrExpr cCosts cRango cSuma cResta cMult cDiv expr = case expr of
+          Const i         -> cCosts i
+          Rango x y       -> cRango x y
+          Suma exp1 exp2  -> cSuma exp1 (rec exp1) exp2 (rec exp2)
+          Resta exp1 exp2 -> cResta exp1 (rec exp1) exp2 (rec exp2)
+          Mult exp1 exp2  -> cMult exp1 (rec exp1) exp2(rec exp2)
+          Div exp1 exp2   -> cDiv exp1 (rec exp1) exp2 (rec exp2)
+    where 
+      rec = recrExpr cCosts cRango cSuma cResta cMult cDiv
 
 -- foldExpr :: ... anotar el tipo ...
-foldExpr = error "COMPLETAR EJERCICIO 7"
+foldExpr :: (Float -> a) -> (Float -> Float -> a) -> (a -> a -> a) ->(a -> a -> a) -> (a -> a -> a) -> (a -> a -> a) -> Expr -> a
+foldExpr cCosts cRango cSuma cResta cMult cDiv expr = case expr of
+          Const i         -> cCosts i
+          Rango x y       -> cRango x y
+          Suma exp1 exp2  -> cSuma (rec exp1) (rec exp2)
+          Resta exp1 exp2 -> cResta (rec exp1) (rec exp2)
+          Mult exp1 exp2  -> cMult (rec exp1) (rec exp2)
+          Div exp1 exp2   -> cDiv (rec exp1) (rec exp2)
+    where 
+      rec = foldExpr cCosts cRango cSuma cResta cMult cDiv
 
 -- | Evaluar expresiones dado un generador de números aleatorios
 eval :: Expr -> G Float
