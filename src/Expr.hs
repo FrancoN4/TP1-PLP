@@ -25,8 +25,16 @@ data Expr
 -- recrExpr :: ... anotar el tipo ...
 recrExpr = error "COMPLETAR EJERCICIO 7"
 
--- foldExpr :: ... anotar el tipo ...
-foldExpr = error "COMPLETAR EJERCICIO 7"
+foldExpr :: (a -> b -> b) -> b -> Expr a -> b  
+foldExpr f z (Rango r1 r2) = f (Rango r1 r2) z
+foldExpr f z (Const c) = f c z
+foldExpr f z (Suma e1 e2) = rec e1 e1 
+foldExpr f z (Resta e1 e2) = rec e1 e1 
+foldExpr f z (Mult e1 e2) = rec e1 e1 
+foldExpr f z (Div e1 e2) = rec e1 e1
+  where rec e1 e2 = f (foldExpr f z e2) e1 
+
+
 
 -- | Evaluar expresiones dado un generador de números aleatorios
 eval :: Expr -> G Float
