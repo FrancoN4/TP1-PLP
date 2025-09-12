@@ -56,9 +56,9 @@ testsActualizarElem =
       actualizarElem 1 (+ 10) [1, 2, 3] ~?= [1, 12, 3],
       actualizarElem 2 (+ 10) [1, 2, 3] ~?= [1, 2, 13],
       actualizarElem 3 (+ 10) [1, 2, 3] ~?= [1, 2, 3],
-      actualizarElem 10 id [1,2,3] ~?= [1,2,3],
+      actualizarElem 1 id [1,2,3] ~?= [1,2,3],
       actualizarElem 100 (+ 10) [1, 2, 3] ~?= [1, 2, 3],
-      actualizarElem (-10) (+ 10) [1, 2, 3] ~?= [1, 12, 3],
+      actualizarElem (-10) (+ 10) [1, 2, 3] ~?= [1, 2, 3],
       actualizarElem 0 (*10) [1] ~?= [10],
       actualizarElem 0 (*10) [] ~?= [],
       actualizarElem 2 reverse ["Hola", "Mundo", "Que", "Tal"] ~?= ["Hola","Mundo","euQ","Tal"]
@@ -79,14 +79,47 @@ testsVacio =
               Casillero 4 6 0 0,
               Casillero 6 infinitoPositivo 0 0
             ],
-      completar
+      casilleros (vacio 4 (-4, 4))
+        ~?= [ Casillero infinitoNegativo (-4.0) 0 0.0,
+              Casillero (-4.0) (-2.0) 0 0.0,
+              Casillero (-2.0) 0.0 0 0.0,
+              Casillero 0.0 2.0 0 0.0,
+              Casillero 2.0 4.0 0 0.0,
+              Casillero 4.0 infinitoPositivo 0 0.0
+            ],
+      casilleros (vacio 5 (0, 1))
+        ~?= [ Casillero infinitoNegativo 0.0 0 0.0,
+              Casillero 0.0 0.2 0 0.0,
+              Casillero 0.2 0.4 0 0.0,
+              Casillero 0.4 0.6 0 0.0,
+              Casillero 0.6 0.8 0 0.0,
+              Casillero 0.8 1.0 0 0.0,
+              Casillero 1.0 infinitoPositivo 0 0.0
+            ],
+      -- largo de la lista de casilleros
+      length (casilleros (vacio 1 (0,10))) ~?= 3,
+      length (casilleros (vacio 3 (0,6))) ~?= 5,
+      length (casilleros (vacio 4 (-4,4))) ~?= 6,
+      length (casilleros (vacio 5 (0,1))) ~?= 7
     ]
 
 testsAgregar :: Test
 testsAgregar =
   let h0 = vacio 3 (0, 6)
+      h1 = agregar (-1) h0
+      h2 = agregar 0 h1
+      h3 = agregar 2 h2
+      h4 = agregar 4 h3
+      h5 = agregar 6 h4
    in test
-        [ casilleros (agregar 0 h0)
+        [ casilleros (agregar (-1) h0)
+            ~?= [ Casillero infinitoNegativo 0 1 100, -- El 100% de los valores están acá
+                  Casillero 0 2 0 0,
+                  Casillero 2 4 0 0,
+                  Casillero 4 6 0 0,
+                  Casillero 6 infinitoPositivo 0 0
+                ],
+          casilleros (agregar 0 h0)
             ~?= [ Casillero infinitoNegativo 0 0 0,
                   Casillero 0 2 1 100, -- El 100% de los valores están acá
                   Casillero 2 4 0 0,
@@ -100,27 +133,83 @@ testsAgregar =
                   Casillero 4 6 0 0,
                   Casillero 6 infinitoPositivo 0 0
                 ],
-          casilleros (agregar (-1) h0)
-            ~?= [ Casillero infinitoNegativo 0 1 100, -- El 100% de los valores están acá
+          casilleros (agregar 4 h0)
+            ~?= [ Casillero infinitoNegativo 0 1 0, 
                   Casillero 0 2 0 0,
+                  Casillero 2 4 0 0,
+                  Casillero 4 6 1 100, -- El 100% de los valores están acá
+                  Casillero 6 infinitoPositivo 0 0
+                ],
+          casilleros (agregar 6 h0)
+            ~?= [ Casillero infinitoNegativo 0 1 0, 
+                  Casillero 0 2 0 0,
+                  Casillero 2 4 0 0,
+                  Casillero 4 6 0 0, 
+                  Casillero 6 infinitoPositivo 1 100 -- El 100% de los valores están acá
+                ],
+          casilleros h2
+            ~?= [ Casillero infinitoNegativo 0 1 50,
+                  Casillero 0 2 1 50,
                   Casillero 2 4 0 0,
                   Casillero 4 6 0 0,
                   Casillero 6 infinitoPositivo 0 0
                 ],
-          completar
+          casilleros h3
+            ~?= [ Casillero infinitoNegativo 0 1 (100/3),
+                  Casillero 0 2 1 (100/3),
+                  Casillero 2 4 1 (100/3),
+                  Casillero 4 6 0 0,
+                  Casillero 6 infinitoPositivo 0 0
+                ],
+          casilleros h4
+            ~?= [ Casillero infinitoNegativo 0 1 25,
+                  Casillero 0 2 1 25,
+                  Casillero 2 4 1 25,
+                  Casillero 4 6 1 25,
+                  Casillero 6 infinitoPositivo 0 0
+                ],
+           casilleros h5
+            ~?= [ Casillero infinitoNegativo 0 1 (100/5),
+                  Casillero 0 2 1 (100/5),
+                  Casillero 2 4 1 (100/5),
+                  Casillero 4 6 1 (100/5),
+                  Casillero 6 infinitoPositivo 1 (100/5)
+                ]
         ]
 
 testsHistograma :: Test
 testsHistograma =
   test
-    [ histograma 4 (1, 5) [1, 2, 3] ~?= agregar 3 (agregar 2 (agregar 1 (vacio 4 (1, 5)))),
-      completar
+    [ histograma 4 (1, 5) [] ~?= vacio 4 (1, 5),
+      histograma 4 (1, 5) [0] ~?= agregar 0 (vacio 4 (1, 5)),
+      histograma 4 (1, 5) [1] ~?= agregar 1 (vacio 4 (1, 5)),
+      histograma 4 (1, 5) [1, 2, 3] ~?= agregar 3 (agregar 2 (agregar 1 (vacio 4 (1, 5)))),
+      histograma 4 (1, 5) [5] ~?= agregar 5 (vacio 4 (1, 5)), 
+      casilleros (histograma 4 (1,5) [1,2,3]) ~?= casilleros (histograma 4 (1,5) [3,1,2]),
+      histograma 4 (1,5) [-10, 0, 1, 4.9, 5, 7, 100]
+        ~?= agregar 100 (agregar 7 (agregar 5 (agregar 4.9 (agregar 1 (agregar 0 (agregar (-10) (vacio 4 (1,5)))))))),
+      histograma 4 (1,5) [1.1,1.2,1.3]
+        ~?= agregar 1.3 (agregar 1.2 (agregar 1.1 (vacio 4 (1,5))))
     ]
 
 testsCasilleros :: Test
 testsCasilleros =
   test
-    [ casilleros (vacio 3 (0, 6))
+    [ casilleros (agregar (-1) (vacio 3 (0,6)))
+        ~?= [ Casillero infinitoNegativo 0 1 100,
+              Casillero 0 2 0 0,
+              Casillero 2 4 0 0,
+              Casillero 4 6 0 0,
+              Casillero 6 infinitoPositivo 0 0
+            ],
+      casilleros (agregar 0 (vacio 3 (0,6)))
+        ~?= [ Casillero infinitoNegativo 0 0 0,
+              Casillero 0 2 1 100,
+              Casillero 2 4 0 0,
+              Casillero 4 6 0 0,
+              Casillero 6 infinitoPositivo 0 0
+            ],
+      casilleros (vacio 3 (0, 6))
         ~?= [ Casillero infinitoNegativo 0.0 0 0.0,
               Casillero 0.0 2.0 0 0.0,
               Casillero 2.0 4.0 0 0.0,
@@ -134,7 +223,20 @@ testsCasilleros =
               Casillero 4.0 6.0 0 0.0,
               Casillero 6.0 infinitoPositivo 0 0.0
             ],
-      completar
+      casilleros (agregar 4 (agregar 2 (agregar 0 (agregar (-1) (vacio 3 (0,6))))))
+        ~?= [ Casillero infinitoNegativo 0 1 25,
+              Casillero 0 2 1 25,
+              Casillero 2 4 1 25,
+              Casillero 4 6 1 25,
+              Casillero 6 infinitoPositivo 0 0
+            ],      
+      casilleros (agregar 6 (agregar 4 (agregar 2 (agregar 0 (agregar (-1) (vacio 3 (0,6)))))))
+        ~?= [ Casillero infinitoNegativo 0 1 (100/5),
+              Casillero 0 2 1 (100/5),
+              Casillero 2 4 1 (100/5),
+              Casillero 4 6 1 (100/5),
+              Casillero 6 infinitoPositivo 1 (100/5)
+            ]
     ]
 
 testsRecr :: Test
