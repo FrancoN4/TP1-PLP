@@ -24,6 +24,7 @@ module Histograma
 where
 
 import Util
+import Data.List (zipWith4)
 
 data Histograma = Histograma Float Float [Int]
   deriving (Show, Eq)
@@ -32,15 +33,20 @@ data Histograma = Histograma Float Float [Int]
 -- valores en el rango y 2 casilleros adicionales para los valores fuera del rango.
 -- Require que @l < u@ y @n >= 1@.
 vacio :: Int -> (Float, Float) -> Histograma
-vacio n (l, u) = error "COMPLETAR EJERCICIO 3"
+vacio n (l, u) = Histograma l ((u-l) / fromIntegral n) (replicate (n+2) 0)
 
 -- | Agrega un valor al histograma.
 agregar :: Float -> Histograma -> Histograma
-agregar x _ = error "COMPLETAR EJERCICIO 4"
+agregar x (Histograma i t cs) = Histograma i t (actualizarElem indice (+1) cs)
+             where
+              indice
+                | x < i = 0
+                | x >= i + fromIntegral (length cs - 2) * t = length cs - 1
+                | otherwise = floor ((x - i) /t) + 1
 
 -- | Arma un histograma a partir de una lista de números reales con la cantidad de casilleros y rango indicados.
 histograma :: Int -> (Float, Float) -> [Float] -> Histograma
-histograma n r xs = error "COMPLETAR EJERCICIO 5"
+histograma n r = foldr agregar (vacio n r)
 
 -- | Un `Casillero` representa un casillero del histograma con sus límites, cantidad y porcentaje.
 -- Invariante: Sea @Casillero m1 m2 c p@ entonces @m1 < m2@, @c >= 0@, @0 <= p <= 100@
@@ -65,4 +71,12 @@ casPorcentaje (Casillero _ _ _ p) = p
 
 -- | Dado un histograma, devuelve la lista de casilleros con sus límites, cantidad y porcentaje.
 casilleros :: Histograma -> [Casillero]
-casilleros _ = error "COMPLETAR EJERCICIO 6"
+casilleros (Histograma i t cs) = zipWith4 Casillero limitesInferiores limitesSuperiores cs porcentajes
+  where
+    cantCasillerosInternos = length cs - 2
+    limitesInferiores = infinitoNegativo : [i + t * fromIntegral j | j <- [0..cantCasillerosInternos]]
+    limitesSuperiores = tail limitesInferiores ++ [infinitoPositivo]
+    porcentaje = \c -> fromIntegral c * 100 / fromIntegral (sum cs)
+    porcentajes 
+      | sum cs == 0 = replicate (length cs) 0
+      | otherwise = map porcentaje cs
