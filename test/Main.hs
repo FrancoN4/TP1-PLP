@@ -39,12 +39,12 @@ allTests =
 testsAlinearDerecha :: Test
 testsAlinearDerecha =
   test
-    [ alinearDerecha 6 "hola" ~?= "  hola",
-      alinearDerecha 10 "incierticalc" ~?= "incierticalc",
-      alinearDerecha 0 "incierticalc" ~?= "incierticalc",
-      alinearDerecha 1 "a" ~?=  "a",
+    [ alinearDerecha 0 "" ~?= "",
       alinearDerecha 1 "" ~?= " ",
-      alinearDerecha 0 "" ~?= "",
+      alinearDerecha 1 "a" ~?= "a",
+      alinearDerecha 0 "incierticalc" ~?= "incierticalc",
+      alinearDerecha 6 "hola" ~?= "  hola",
+      alinearDerecha 10 "incierticalc" ~?= "incierticalc",
       alinearDerecha 6 "a b c" ~?= " a b c",
       alinearDerecha 6 " hola" ~?= "  hola"
     ]
@@ -54,7 +54,14 @@ testsActualizarElem =
   test
     [ actualizarElem 0 (+ 10) [1, 2, 3] ~?= [11, 2, 3],
       actualizarElem 1 (+ 10) [1, 2, 3] ~?= [1, 12, 3],
-      completar
+      actualizarElem 2 (+ 10) [1, 2, 3] ~?= [1, 2, 13],
+      actualizarElem 3 (+ 10) [1, 2, 3] ~?= [1, 2, 3],
+      actualizarElem 10 id [1,2,3] ~?= [1,2,3],
+      actualizarElem 100 (+ 10) [1, 2, 3] ~?= [1, 2, 3],
+      actualizarElem (-10) (+ 10) [1, 2, 3] ~?= [1, 12, 3],
+      actualizarElem 0 (*10) [1] ~?= [10],
+      actualizarElem 0 (*10) [] ~?= [],
+      actualizarElem 2 reverse ["Hola", "Mundo", "Que", "Tal"] ~?= ["Hola","Mundo","euQ","Tal"]
     ]
 
 testsVacio :: Test
