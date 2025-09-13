@@ -29,9 +29,9 @@ recrExpr cCosts cRango cSuma cResta cMult cDiv expr = case expr of
           Rango x y       -> cRango x y
           Suma exp1 exp2  -> cSuma exp1 (rec exp1) exp2 (rec exp2)
           Resta exp1 exp2 -> cResta exp1 (rec exp1) exp2 (rec exp2)
-          Mult exp1 exp2  -> cMult exp1 (rec exp1) exp2(rec exp2)
+          Mult exp1 exp2  -> cMult exp1 (rec exp1) exp2 (rec exp2)
           Div exp1 exp2   -> cDiv exp1 (rec exp1) exp2 (rec exp2)
-    where 
+    where
       rec = recrExpr cCosts cRango cSuma cResta cMult cDiv
 
 -- foldExpr :: ... anotar el tipo ...
@@ -43,12 +43,23 @@ foldExpr cCosts cRango cSuma cResta cMult cDiv expr = case expr of
           Resta exp1 exp2 -> cResta (rec exp1) (rec exp2)
           Mult exp1 exp2  -> cMult (rec exp1) (rec exp2)
           Div exp1 exp2   -> cDiv (rec exp1) (rec exp2)
-    where 
+    where
       rec = foldExpr cCosts cRango cSuma cResta cMult cDiv
+
+reutilizarGen :: (Float -> Float -> Float) -> G Float -> G Float -> G Float
+reutilizarGen op rec1 rec2 g = let (x1, g1) = rec1 g
+                                   (x2, g2) = rec2 g1
+                                in (op x1 x2, g2)
 
 -- | Evaluar expresiones dado un generador de números aleatorios
 eval :: Expr -> G Float
-eval = error "COMPLETAR EJERCICIO 8"
+eval = foldExpr
+  (,)
+  (\x y g -> dameUno (x,y) g)
+  (reutilizarGen (+))
+  (reutilizarGen (-))
+  (reutilizarGen (*))
+  (reutilizarGen (/))
 
 -- | @armarHistograma m n f g@ arma un histograma con @m@ casilleros
 -- a partir del resultado de tomar @n@ muestras de @f@ usando el generador @g@.
