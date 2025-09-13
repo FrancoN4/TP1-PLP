@@ -47,9 +47,10 @@ foldExpr cCosts cRango cSuma cResta cMult cDiv expr = case expr of
       rec = foldExpr cCosts cRango cSuma cResta cMult cDiv
 
 reutilizarGen :: (Float -> Float -> Float) -> G Float -> G Float -> G Float
-reutilizarGen op rec1 rec2 g = let (x1, g1) = rec1 g
-                                   (x2, g2) = rec2 g1
-                                in (op x1 x2, g2)
+reutilizarGen op rec1 rec2 g = (op x1 x2, g2)
+                              where
+                               (x1, g1) = rec1 g
+                               (x2, g2) = rec2 g1
 
 -- | Evaluar expresiones dado un generador de números aleatorios
 eval :: Expr -> G Float
