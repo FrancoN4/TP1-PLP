@@ -6,11 +6,14 @@ module Expr
     armarHistograma,
     evalHistograma,
     mostrar,
+    ga,
+    simbolo
   )
 where
 
 import Generador
 import Histograma
+import Data.Bool (Bool)
 
 -- | Expresiones aritméticas con rangos
 data Expr
@@ -22,7 +25,6 @@ data Expr
   | Div Expr Expr
   deriving (Show, Eq)
 
--- recrExpr :: ... anotar el tipo ...
 recrExpr :: (Float -> a) -> (Float -> Float -> a) -> (Expr -> a -> Expr -> a -> a)-> (Expr -> a -> Expr -> a -> a)-> (Expr -> a -> Expr -> a -> a)-> (Expr -> a -> Expr -> a -> a) -> Expr -> a
 recrExpr cCosts cRango cSuma cResta cMult cDiv expr = case expr of
           Const i         -> cCosts i
@@ -34,7 +36,6 @@ recrExpr cCosts cRango cSuma cResta cMult cDiv expr = case expr of
     where
       rec = recrExpr cCosts cRango cSuma cResta cMult cDiv
 
--- foldExpr :: ... anotar el tipo ...
 foldExpr :: (Float -> a) -> (Float -> Float -> a) -> (a -> a -> a) ->(a -> a -> a) -> (a -> a -> a) -> (a -> a -> a) -> Expr -> a
 foldExpr cCosts cRango cSuma cResta cMult cDiv expr = case expr of
           Const i         -> cCosts i
@@ -66,9 +67,9 @@ eval = foldExpr
 -- a partir del resultado de tomar @n@ muestras de @f@ usando el generador @g@.
 armarHistograma :: Int -> Int -> G Float -> G Histograma
 armarHistograma m n f g = (histograma m (rango95 ls) ls, gen)
-                                        where l = muestra f n g
-                                              ls = fst l
-                                              gen = snd l 
+                                        where res = muestra f n g
+                                              ls = fst res
+                                              gen = snd res
 
 -- | @evalHistograma m n e g@ evalúa la expresión @e@ usando el generador @g@ @n@ veces
 -- devuelve un histograma con @m@ casilleros y rango calculado con @rango95@ para abarcar el 95% de confianza de los valores.
@@ -86,7 +87,10 @@ evalHistograma m n expr = armarHistograma m n (eval expr)
 -- | Mostrar las expresiones, pero evitando algunos paréntesis innecesarios.
 -- En particular queremos evitar paréntesis en sumas y productos anidados.
 mostrar :: Expr -> String
-mostrar = error "COMPLETAR EJERCICIO 11"
+mostrar = recrExpr show (\x y -> show x ++ "~" ++ show y) (ga CESuma) (ga CEResta) (ga CEMult) (ga CEDiv)
+
+ga :: ConstructorExpr -> Expr -> String -> Expr -> String -> String
+ga c e1 rec1 e2 rec2 = maybeParen (precedencia c e1) rec1 ++ simbolo c ++ maybeParen (precedencia c e2) rec2
 
 data ConstructorExpr = CEConst | CERango | CESuma | CEResta | CEMult | CEDiv
   deriving (Show, Eq)
@@ -99,6 +103,22 @@ constructor (Suma _ _) = CESuma
 constructor (Resta _ _) = CEResta
 constructor (Mult _ _) = CEMult
 constructor (Div _ _) = CEDiv
+
+simbolo :: ConstructorExpr -> String
+simbolo CEConst = ""
+simbolo CERango = "∼"
+simbolo CESuma = " + "
+simbolo CEResta = " - "
+simbolo CEMult = " * "
+simbolo CEDiv = " / "
+
+precedencia:: ConstructorExpr -> Expr -> Bool
+precedencia padre expr = padre /= hijo && sinParentesis hijo
+                            where hijo = constructor expr 
+
+sinParentesis:: ConstructorExpr -> Bool
+sinParentesis c = c /= CEConst && c /= CERango
+
 
 -- | Agrega paréntesis antes y después del string si el Bool es True.
 maybeParen :: Bool -> String -> String
