@@ -23,14 +23,56 @@ data Expr
   deriving (Show, Eq)
 
 -- recrExpr :: ... anotar el tipo ...
-recrExpr = error "COMPLETAR EJERCICIO 7"
+recrExpr :: (Float -> a) -> 
+            (Float -> Float -> a) -> 
+            (Expr -> a -> Expr -> a -> a) -> 
+            (Expr -> a -> Expr -> a -> a) -> 
+            (Expr -> a -> Expr -> a -> a) -> 
+            (Expr -> a -> Expr -> a -> a) -> 
+            Expr -> a
+recrExpr cConst cRango cSuma cResta cMult cDiv expr = case expr of
+          Const i         -> cConst i
+          Rango x y       -> cRango x y
+          Suma exp1 exp2  -> cSuma exp1 (rec exp1) exp2 (rec exp2)
+          Resta exp1 exp2 -> cResta exp1 (rec exp1) exp2 (rec exp2)
+          Mult exp1 exp2  -> cMult exp1 (rec exp1) exp2 (rec exp2)
+          Div exp1 exp2   -> cDiv exp1 (rec exp1) exp2 (rec exp2)
+    where 
+      rec = recrExpr cConst cRango cSuma cResta cMult cDiv
 
 -- foldExpr :: ... anotar el tipo ...
-foldExpr = error "COMPLETAR EJERCICIO 7"
+foldExpr :: (Float -> a) -> 
+            (Float -> Float -> a) -> 
+            (a -> a -> a) -> 
+            (a -> a -> a) -> 
+            (a -> a -> a) -> 
+            (a -> a -> a) -> 
+            Expr -> a
+foldExpr cConst cRango cSuma cResta cMult cDiv expr = case expr of
+          Const i         -> cConst i
+          Rango x y       -> cRango x y
+          Suma exp1 exp2  -> cSuma (rec exp1) (rec exp2)
+          Resta exp1 exp2 -> cResta (rec exp1) (rec exp2)
+          Mult exp1 exp2  -> cMult (rec exp1) (rec exp2)
+          Div exp1 exp2   -> cDiv (rec exp1) (rec exp2)
+    where 
+      rec = foldExpr cConst cRango cSuma cResta cMult cDiv
+
+reutilizarGen :: (Float -> Float -> Float) -> G Float -> G Float -> G Float
+reutilizarGen op rec1 rec2 g = (op x1 x2, g2)
+                              where
+                               (x1, g1) = rec1 g
+                               (x2, g2) = rec2 g1
 
 -- | Evaluar expresiones dado un generador de números aleatorios
 eval :: Expr -> G Float
-eval = error "COMPLETAR EJERCICIO 8"
+eval = foldExpr
+  (,)
+  (\x y g -> dameUno (x,y) g)
+  (reutilizarGen (+))
+  (reutilizarGen (-))
+  (reutilizarGen (*))
+  (reutilizarGen (/))
 
 -- | @armarHistograma m n f g@ arma un histograma con @m@ casilleros
 -- a partir del resultado de tomar @n@ muestras de @f@ usando el generador @g@.

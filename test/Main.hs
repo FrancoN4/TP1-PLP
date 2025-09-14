@@ -134,14 +134,14 @@ testsAgregar =
                   Casillero 6 infinitoPositivo 0 0
                 ],
           casilleros (agregar 4 h0)
-            ~?= [ Casillero infinitoNegativo 0 1 0, 
+            ~?= [ Casillero infinitoNegativo 0 0 0, 
                   Casillero 0 2 0 0,
                   Casillero 2 4 0 0,
                   Casillero 4 6 1 100, -- El 100% de los valores están acá
                   Casillero 6 infinitoPositivo 0 0
                 ],
           casilleros (agregar 6 h0)
-            ~?= [ Casillero infinitoNegativo 0 1 0, 
+            ~?= [ Casillero infinitoNegativo 0 0 0, 
                   Casillero 0 2 0 0,
                   Casillero 2 4 0 0,
                   Casillero 4 6 0 0, 
@@ -239,10 +239,51 @@ testsCasilleros =
             ]
     ]
 
+-- Funciones auxiliares para testear recrExpr
+reconstruir :: Expr -> Expr
+reconstruir =
+  recrExpr
+    Const
+    Rango
+    (\e1 _ e2 _ -> Suma e1 e2)
+    (\e1 _ e2 _ -> Resta e1 e2)
+    (\e1 _ e2 _ -> Mult e1 e2)
+    (\e1 _ e2 _ -> Div  e1 e2)
+
+listaDeSubexpresiones :: Expr -> [Expr]
+listaDeSubexpresiones =
+  recrExpr
+    (\x -> [Const x])
+    (\a b -> [Rango a b])
+    (\e1 l e2 r -> Suma e1 e2 : (l ++ r))
+    (\e1 l e2 r -> Resta e1 e2 : (l ++ r))
+    (\e1 l e2 r -> Mult e1 e2 : (l ++ r))
+    (\e1 l e2 r -> Div  e1 e2 : (l ++ r))
+
 testsRecr :: Test
 testsRecr =
   test
-    [ completar
+    [ reconstruir (Const 5) ~?= Const 5,
+      reconstruir (Rango 1 2) ~?= Rango 1 2,
+      listaDeSubexpresiones (Const 5) ~?= [Const 5],
+      listaDeSubexpresiones (Rango 1 2) ~?= [Rango 1 2],
+      let e = Suma (Const 1) (Const 2)
+        in reconstruir e ~?= e,
+      let e = Suma (Const 1) (Mult (Const 2) (Const 3))
+        in reconstruir e ~?= e,
+      let e = Div (Suma (Rango 1 2) (Mult (Const 3) (Rango 10 11))) (Resta (Const 4) (Const 5))
+        in reconstruir e ~?= e,
+      let e = Suma (Const 1) (Const 2)
+        in listaDeSubexpresiones e ~?= [e, Const 1, Const 2],
+      let e = Suma (Const 1) (Mult (Const 2) (Const 3))
+        in listaDeSubexpresiones e ~?= [e, Const 1, Mult (Const 2) (Const 3), Const 2, Const 3],
+      let e = Div (Suma (Rango 1 2) (Mult (Const 3) (Rango 10 11))) (Resta (Const 4) (Const 5))
+        in listaDeSubexpresiones e ~?= [e, Suma (Rango 1 2) (Mult (Const 3) (Rango 10 11)), Rango 1 2,
+                                        Mult (Const 3) (Rango 10 11), Const 3, Rango 10 11, Resta (Const 4) (Const 5), Const 4, Const 5],
+      let e = Mult (Const 1) (Resta (Const 2) (Const 3))
+        in head (listaDeSubexpresiones e) ~?= e,
+      let e = Div (Const 1) (Div (Const 2) (Const 3))
+        in length (listaDeSubexpresiones e) ~?= 5
     ]
 
 testsFold :: Test
