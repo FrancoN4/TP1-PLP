@@ -286,10 +286,41 @@ testsRecr =
         in length (listaDeSubexpresiones e) ~?= 5
     ]
 
+-- Funciones auxiliares para testear foldExpr
+cantConst :: Expr -> Int
+cantConst =
+  foldExpr
+    (const 1)        
+    (\_ _ -> 0)      
+    (+) (+) (+) (+)
+
+altura :: Expr -> Int
+altura =
+  foldExpr
+    (const 1)        
+    (\_ _ -> 1)      
+    (\l r -> 1 + max l r)
+    (\l r -> 1 + max l r)
+    (\l r -> 1 + max l r)
+    (\l r -> 1 + max l r)
+
 testsFold :: Test
 testsFold =
   test
-    [ completar
+    [ cantConst (Const 3) ~?= 1,
+      cantConst (Rango 1 2) ~?= 0,
+      altura (Const 5) ~?= 1,
+      altura (Rango 0 1) ~?= 1,
+      let e = Suma (Const 1) (Const 2)
+        in cantConst e ~?= 2,
+      let e = Suma (Const 1) (Mult (Const 2) (Const 3))
+        in cantConst e ~?= 3,
+      let e = Suma (Const 1) (Const 2)
+        in altura e ~?= 2,
+      let e = Suma (Const 1) (Mult (Const 2) (Const 3))
+        in altura e ~?= 3,
+      let e = Div (Suma (Rango 1 2) (Mult (Const 3) (Rango 10 11))) (Resta (Const 4) (Const 5))
+        in (cantConst e, altura e) ~?= (3, 4)
     ]
 
 testsEval :: Test
