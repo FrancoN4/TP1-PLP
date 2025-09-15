@@ -326,22 +326,46 @@ testsFold =
 testsEval :: Test
 testsEval =
   test
-    [ fst (eval (Suma (Rango 1 5) (Const 1)) genFijo) ~?= 4.0,
+    [  -- test base
+      fst (eval (Resta (Const 5) (Const 6)) (genNormalConSemilla 0)) ~?= -1.0,
+      fst (eval (Mult (Const 5) (Const 6)) (genNormalConSemilla 0)) ~?= 30.0,
+      fst (eval (Div (Const 5) (Const 6)) (genNormalConSemilla 0)) ~?= 0.8333333,
+
+      fst (eval (Suma (Rango 1 5) (Const 1)) genFijo) ~?= 4.0,
       fst (eval (Suma (Rango 1 5) (Const 1)) (genNormalConSemilla 0)) ~?= 3.7980492,
+
       -- el primer rango evalua a 2.7980492 y el segundo a 3.1250308
       fst (eval (Suma (Rango 1 5) (Rango 1 5)) (genNormalConSemilla 0)) ~?= 5.92308,
-      completar
+
+
+      -- distributiva
+      fst (eval (Mult (Mult (Rango 1 5) (Rango 6 10)) (Rango 2 6)) (genNormalConSemilla 0)) ~?= fst (eval (Mult (Rango 1 5) (Mult (Rango 6 10) (Rango 2 6))) (genNormalConSemilla 0)),
+
+      -- asociativa
+      fst (eval (Mult (Rango 1 5) (Mult (Rango 3 6) (Const 4))) genFijo) ~?= fst (eval (Mult (Mult (Rango 1 5) (Const 4)) (Rango 3 6)) genFijo),
+
+      -- elemento neutro
+      fst (eval (Suma (Rango 1 5) (Const 0)) genFijo) ~?= 3.0,
+      fst (eval (Resta (Rango 1 5) (Const 0)) genFijo) ~?= 3.0,
+      fst (eval (Mult (Rango 1 5) (Const 1)) genFijo) ~?= 3.0,
+      fst (eval (Div (Rango 1 5) (Const 1)) genFijo) ~?= 3.0
     ]
 
 testsArmarHistograma :: Test
 testsArmarHistograma =
   test
-    [completar]
+    [
+      fst (armarHistograma 1 1 (eval (Suma (Rango 1 5) (Const 0))) genFijo)  ~?= agregar 3.0 (vacio 1 (2, 4)),
+      fst (armarHistograma 1 2 (eval (Suma (Rango 1 5) (Const 0))) genFijo)  ~?= agregar 3.0 (agregar 3.0 (vacio 1 (2, 4)))      
+    ]
 
 testsEvalHistograma :: Test
 testsEvalHistograma =
   test
-    [completar]
+    [
+      fst (evalHistograma 1 1  (Suma (Rango 1 5) (Const 0)) genFijo)  ~?= agregar 3.0 (vacio 1 (2, 4)),
+      fst (evalHistograma 1 2  (Suma (Rango 1 5) (Const 0)) genFijo)  ~?= agregar 3.0 (agregar 3.0 (vacio 1 (2, 4)))   
+    ]
 
 testsParse :: Test
 testsParse =
