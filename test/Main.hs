@@ -360,15 +360,22 @@ testsEval =
 
     ]
 
+
 testsArmarHistograma :: Test
 testsArmarHistograma =
   test
-    [completar]
+     [ 
+      fst (armarHistograma 1 1 (eval (Suma (Rango 1 5) (Const 0))) genFijo)  ~?= agregar 3.0 (vacio 1 (2, 4)),
+      fst (armarHistograma 1 2 (eval (Suma (Rango 1 5) (Const 0))) genFijo)  ~?= agregar 3.0 (agregar 3.0 (vacio 1 (2, 4)))      
+    ]
 
 testsEvalHistograma :: Test
 testsEvalHistograma =
   test
-    [completar]
+    [
+        fst (evalHistograma 1 1  (Suma (Rango 1 5) (Const 0)) genFijo)  ~?= agregar 3.0 (vacio 1 (2, 4)),
+       fst (evalHistograma 1 2  (Suma (Rango 1 5) (Const 0)) genFijo)  ~?= agregar 3.0 (agregar 3.0 (vacio 1 (2, 4)))     
+    ]
 
 testsParse :: Test
 testsParse =
