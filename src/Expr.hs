@@ -6,7 +6,7 @@ module Expr
     armarHistograma,
     evalHistograma,
     mostrar,
-    ga,
+    traductor,
     simbolo
   )
 where
@@ -25,27 +25,41 @@ data Expr
   | Div Expr Expr
   deriving (Show, Eq)
 
-recrExpr :: (Float -> a) -> (Float -> Float -> a) -> (Expr -> a -> Expr -> a -> a)-> (Expr -> a -> Expr -> a -> a)-> (Expr -> a -> Expr -> a -> a)-> (Expr -> a -> Expr -> a -> a) -> Expr -> a
-recrExpr cCosts cRango cSuma cResta cMult cDiv expr = case expr of
-          Const i         -> cCosts i
+-- recrExpr :: ... anotar el tipo ...
+recrExpr :: (Float -> a) -> 
+            (Float -> Float -> a) -> 
+            (Expr -> a -> Expr -> a -> a) -> 
+            (Expr -> a -> Expr -> a -> a) -> 
+            (Expr -> a -> Expr -> a -> a) -> 
+            (Expr -> a -> Expr -> a -> a) -> 
+            Expr -> a
+recrExpr cConst cRango cSuma cResta cMult cDiv expr = case expr of
+          Const i         -> cConst i
           Rango x y       -> cRango x y
           Suma exp1 exp2  -> cSuma exp1 (rec exp1) exp2 (rec exp2)
           Resta exp1 exp2 -> cResta exp1 (rec exp1) exp2 (rec exp2)
           Mult exp1 exp2  -> cMult exp1 (rec exp1) exp2 (rec exp2)
           Div exp1 exp2   -> cDiv exp1 (rec exp1) exp2 (rec exp2)
-    where
-      rec = recrExpr cCosts cRango cSuma cResta cMult cDiv
+    where 
+      rec = recrExpr cConst cRango cSuma cResta cMult cDiv
 
-foldExpr :: (Float -> a) -> (Float -> Float -> a) -> (a -> a -> a) ->(a -> a -> a) -> (a -> a -> a) -> (a -> a -> a) -> Expr -> a
-foldExpr cCosts cRango cSuma cResta cMult cDiv expr = case expr of
-          Const i         -> cCosts i
+-- foldExpr :: ... anotar el tipo ...
+foldExpr :: (Float -> a) -> 
+            (Float -> Float -> a) -> 
+            (a -> a -> a) -> 
+            (a -> a -> a) -> 
+            (a -> a -> a) -> 
+            (a -> a -> a) -> 
+            Expr -> a
+foldExpr cConst cRango cSuma cResta cMult cDiv expr = case expr of
+          Const i         -> cConst i
           Rango x y       -> cRango x y
           Suma exp1 exp2  -> cSuma (rec exp1) (rec exp2)
           Resta exp1 exp2 -> cResta (rec exp1) (rec exp2)
           Mult exp1 exp2  -> cMult (rec exp1) (rec exp2)
           Div exp1 exp2   -> cDiv (rec exp1) (rec exp2)
-    where
-      rec = foldExpr cCosts cRango cSuma cResta cMult cDiv
+    where 
+      rec = foldExpr cConst cRango cSuma cResta cMult cDiv
 
 reutilizarGen :: (Float -> Float -> Float) -> G Float -> G Float -> G Float
 reutilizarGen op rec1 rec2 g = (op x1 x2, g2)
@@ -87,10 +101,10 @@ evalHistograma m n expr = armarHistograma m n (eval expr)
 -- | Mostrar las expresiones, pero evitando algunos paréntesis innecesarios.
 -- En particular queremos evitar paréntesis en sumas y productos anidados.
 mostrar :: Expr -> String
-mostrar = recrExpr show (\x y -> show x ++ "~" ++ show y) (ga CESuma) (ga CEResta) (ga CEMult) (ga CEDiv)
+mostrar = recrExpr show (\x y -> show x ++ "~" ++ show y) (traductor CESuma) (traductor CEResta) (traductor CEMult) (traductor CEDiv)
 
-ga :: ConstructorExpr -> Expr -> String -> Expr -> String -> String
-ga c e1 rec1 e2 rec2 = maybeParen (precedencia c e1) rec1 ++ simbolo c ++ maybeParen (precedencia c e2) rec2
+traductor :: ConstructorExpr -> Expr -> String -> Expr -> String -> String
+traductor c e1 rec1 e2 rec2 = evalParen c (constructor e1) rec1 ++ simbolo c ++ evalParen c (constructor e2) rec2
 
 data ConstructorExpr = CEConst | CERango | CESuma | CEResta | CEMult | CEDiv
   deriving (Show, Eq)
@@ -112,13 +126,12 @@ simbolo CEResta = " - "
 simbolo CEMult = " * "
 simbolo CEDiv = " / "
 
-precedencia:: ConstructorExpr -> Expr -> Bool
-precedencia padre expr = padre /= hijo && sinParentesis hijo
-                            where hijo = constructor expr 
-
-sinParentesis:: ConstructorExpr -> Bool
-sinParentesis c = c /= CEConst && c /= CERango
-
+evalParen:: ConstructorExpr -> ConstructorExpr -> String -> String
+evalParen CESuma CESuma = maybeParen (False) 
+evalParen CEMult CEMult = maybeParen (False) 
+evalParen _ CERango = maybeParen (False) 
+evalParen _ CEConst = maybeParen (False) 
+evalParen p h = maybeParen (True) 
 
 -- | Agrega paréntesis antes y después del string si el Bool es True.
 maybeParen :: Bool -> String -> String
