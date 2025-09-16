@@ -26,12 +26,12 @@ data Expr
   deriving (Show, Eq)
 
 -- recrExpr :: ... anotar el tipo ...
-recrExpr :: (Float -> a) -> 
-            (Float -> Float -> a) -> 
-            (Expr -> a -> Expr -> a -> a) -> 
-            (Expr -> a -> Expr -> a -> a) -> 
-            (Expr -> a -> Expr -> a -> a) -> 
-            (Expr -> a -> Expr -> a -> a) -> 
+recrExpr :: (Float -> a) ->
+            (Float -> Float -> a) ->
+            (Expr -> a -> Expr -> a -> a) ->
+            (Expr -> a -> Expr -> a -> a) ->
+            (Expr -> a -> Expr -> a -> a) ->
+            (Expr -> a -> Expr -> a -> a) ->
             Expr -> a
 recrExpr cConst cRango cSuma cResta cMult cDiv expr = case expr of
           Const i         -> cConst i
@@ -40,16 +40,16 @@ recrExpr cConst cRango cSuma cResta cMult cDiv expr = case expr of
           Resta exp1 exp2 -> cResta exp1 (rec exp1) exp2 (rec exp2)
           Mult exp1 exp2  -> cMult exp1 (rec exp1) exp2 (rec exp2)
           Div exp1 exp2   -> cDiv exp1 (rec exp1) exp2 (rec exp2)
-    where 
+    where
       rec = recrExpr cConst cRango cSuma cResta cMult cDiv
 
 -- foldExpr :: ... anotar el tipo ...
-foldExpr :: (Float -> a) -> 
-            (Float -> Float -> a) -> 
-            (a -> a -> a) -> 
-            (a -> a -> a) -> 
-            (a -> a -> a) -> 
-            (a -> a -> a) -> 
+foldExpr :: (Float -> a) ->
+            (Float -> Float -> a) ->
+            (a -> a -> a) ->
+            (a -> a -> a) ->
+            (a -> a -> a) ->
+            (a -> a -> a) ->
             Expr -> a
 foldExpr cConst cRango cSuma cResta cMult cDiv expr = case expr of
           Const i         -> cConst i
@@ -58,7 +58,7 @@ foldExpr cConst cRango cSuma cResta cMult cDiv expr = case expr of
           Resta exp1 exp2 -> cResta (rec exp1) (rec exp2)
           Mult exp1 exp2  -> cMult (rec exp1) (rec exp2)
           Div exp1 exp2   -> cDiv (rec exp1) (rec exp2)
-    where 
+    where
       rec = foldExpr cConst cRango cSuma cResta cMult cDiv
 
 reutilizarGen :: (Float -> Float -> Float) -> G Float -> G Float -> G Float
@@ -127,11 +127,11 @@ simbolo CEMult = " * "
 simbolo CEDiv = " / "
 
 evalParen:: ConstructorExpr -> ConstructorExpr -> String -> String
-evalParen CESuma CESuma = maybeParen (False) 
-evalParen CEMult CEMult = maybeParen (False) 
-evalParen _ CERango = maybeParen (False) 
-evalParen _ CEConst = maybeParen (False) 
-evalParen p h = maybeParen (True) 
+evalParen CESuma CESuma = maybeParen False
+evalParen CEMult CEMult = maybeParen False
+evalParen _ CERango = maybeParen False
+evalParen _ CEConst = maybeParen False
+evalParen p h = maybeParen True
 
 -- | Agrega paréntesis antes y después del string si el Bool es True.
 maybeParen :: Bool -> String -> String

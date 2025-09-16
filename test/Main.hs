@@ -52,15 +52,15 @@ testsAlinearDerecha =
 testsActualizarElem :: Test
 testsActualizarElem =
   test
-    [ actualizarElem (+ 10) [1, 2, 3] 0          ~?= [11, 2, 3],
-      actualizarElem (+ 10) [1, 2, 3] 1          ~?= [1, 12, 3],
-      actualizarElem (+ 10) [1, 2, 3] 2          ~?= [1, 2, 13],
-      actualizarElem (+ 10) [1, 2, 3] 3          ~?= [1, 2, 3],
-      actualizarElem id [1,2,3] 1                ~?= [1,2,3],
-      actualizarElem (+ 10) [1, 2, 3] 100        ~?= [1, 2, 3],
-      actualizarElem (+ 10) [1, 2, 3] (-10)      ~?= [1, 2, 3],
-      actualizarElem (*10) [1] 0                 ~?= [10],
-      actualizarElem (*10) [] 0                  ~?= [],
+    [ actualizarElem (+ 10) [1, 2, 3] 0                          ~?= [11, 2, 3],
+      actualizarElem (+ 10) [1, 2, 3] 1                          ~?= [1, 12, 3],
+      actualizarElem (+ 10) [1, 2, 3] 2                          ~?= [1, 2, 13],
+      actualizarElem (+ 10) [1, 2, 3] 3                          ~?= [1, 2, 3],
+      actualizarElem id [1,2,3] 1                                ~?= [1,2,3],
+      actualizarElem (+ 10) [1, 2, 3] 100                        ~?= [1, 2, 3],
+      actualizarElem (+ 10) [1, 2, 3] (-10)                      ~?= [1, 2, 3],
+      actualizarElem (*10) [1] 0                                 ~?= [10],
+      actualizarElem (*10) [] 0                                  ~?= [],
       actualizarElem reverse ["Hola", "Mundo", "Que", "Tal"]  2  ~?= ["Hola","Mundo","euQ","Tal"]
     ]
 
@@ -373,8 +373,8 @@ testsEvalHistograma :: Test
 testsEvalHistograma =
   test
     [
-        fst (evalHistograma 1 1  (Suma (Rango 1 5) (Const 0)) genFijo)  ~?= agregar 3.0 (vacio 1 (2, 4)),
-       fst (evalHistograma 1 2  (Suma (Rango 1 5) (Const 0)) genFijo)  ~?= agregar 3.0 (agregar 3.0 (vacio 1 (2, 4)))     
+      fst (evalHistograma 1 1  (Suma (Rango 1 5) (Const 0)) genFijo)  ~?= agregar 3.0 (vacio 1 (2, 4)),
+      fst (evalHistograma 1 2  (Suma (Rango 1 5) (Const 0)) genFijo)  ~?= agregar 3.0 (agregar 3.0 (vacio 1 (2, 4)))     
     ]
 
 testsParse :: Test
