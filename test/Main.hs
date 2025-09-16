@@ -52,16 +52,16 @@ testsAlinearDerecha =
 testsActualizarElem :: Test
 testsActualizarElem =
   test
-    [ actualizarElem (+ 10) [1, 2, 3] 0                          ~?= [11, 2, 3],
-      actualizarElem (+ 10) [1, 2, 3] 1                          ~?= [1, 12, 3],
-      actualizarElem (+ 10) [1, 2, 3] 2                          ~?= [1, 2, 13],
-      actualizarElem (+ 10) [1, 2, 3] 3                          ~?= [1, 2, 3],
-      actualizarElem id [1,2,3] 1                                ~?= [1,2,3],
-      actualizarElem (+ 10) [1, 2, 3] 100                        ~?= [1, 2, 3],
-      actualizarElem (+ 10) [1, 2, 3] (-10)                      ~?= [1, 2, 3],
-      actualizarElem (*10) [1] 0                                 ~?= [10],
-      actualizarElem (*10) [] 0                                  ~?= [],
-      actualizarElem reverse ["Hola", "Mundo", "Que", "Tal"]  2  ~?= ["Hola","Mundo","euQ","Tal"]
+    [ actualizarElem 0 (+ 10) [1, 2, 3] ~?= [11, 2, 3],
+      actualizarElem 1 (+ 10) [1, 2, 3] ~?= [1, 12, 3],
+      actualizarElem 2 (+ 10) [1, 2, 3] ~?= [1, 2, 13],
+      actualizarElem 3 (+ 10) [1, 2, 3] ~?= [1, 2, 3],
+      actualizarElem 1 id [1,2,3] ~?= [1,2,3],
+      actualizarElem 100 (+ 10) [1, 2, 3] ~?= [1, 2, 3],
+      actualizarElem (-10) (+ 10) [1, 2, 3] ~?= [1, 2, 3],
+      actualizarElem 0 (*10) [1] ~?= [10],
+      actualizarElem 0 (*10) [] ~?= [],
+      actualizarElem 2 reverse ["Hola", "Mundo", "Que", "Tal"] ~?= ["Hola","Mundo","euQ","Tal"]
     ]
 
 testsVacio :: Test

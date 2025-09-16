@@ -9,8 +9,12 @@ alinearDerecha n s = replicate (n - length s) ' ' ++ s
 -- aplicando la función al valor actual. Si el índice está fuera de los límites
 -- de la lista, devuelve la lista sin cambios.
 -- El primer elemento de la lista es el índice 0.
-actualizarElem :: (a -> a) -> [a] -> (Int -> [a])
-actualizarElem f = foldr (\x rec -> \n -> if (n == 0) then f x : rec (n-1) else x : rec (n-1)) (const [])
+actualizarElem :: Int -> (a -> a) -> [a] -> [a]
+actualizarElem n f xs = actualizarElem' f xs n
+    
+actualizarElem' :: (a -> a) -> [a] -> (Int -> [a])    
+actualizarElem' f = foldr (\x rec -> \n -> if (n == 0) then f x : rec (n-1) else x : rec (n-1)) (const []) 
+    
 
 -- | infinito positivo (Haskell no tiene literal para +infinito)
 infinitoPositivo :: Float

@@ -37,7 +37,7 @@ vacio n (l, u) = Histograma l ((u-l) / fromIntegral n) (replicate (n+2) 0)
 
 -- | Agrega un valor al histograma.
 agregar :: Float -> Histograma -> Histograma
-agregar x (Histograma i t cs) = Histograma i t (actualizarElem (+1) cs indice)
+agregar x (Histograma i t cs) = Histograma i t (actualizarElem indice (+1) cs)
              where
               indice
                 | x < i = 0
