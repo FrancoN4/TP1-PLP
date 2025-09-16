@@ -3,9 +3,7 @@ module Util where
 -- | @alinearDerecha n s@ agrega espacios a la izquierda de @s@ hasta que su longitud sea @n@.
 -- Si @s@ ya tiene longitud @>= n@, devuelve @s@.
 alinearDerecha :: Int -> String -> String
-alinearDerecha n s = if (n <= length(s))
-                        then s
-                        else replicate (n - length(s)) ' ' ++ s
+alinearDerecha n s = replicate (n - length s) ' ' ++ s 
 
 -- | Dado un índice y una función, actualiza el elemento en la posición del índice
 -- aplicando la función al valor actual. Si el índice está fuera de los límites
